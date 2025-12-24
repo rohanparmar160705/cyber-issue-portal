@@ -1,12 +1,15 @@
-import { UserRepository } from '../repositories/user.repository';
-import { ErrorHandler } from '../utils/error.handler';
-import { UpdateProfileDTO, UserProfileDTO } from '../models/user.model';
+import { UserRepository } from "../repositories/user.repository";
+import { ErrorHandler } from "../utils/error.handler";
+import { EmailService } from "./email.service";
+import { UpdateProfileDTO, UserProfileDTO } from "../models/user.model";
 
 export class UserService {
   private userRepository: UserRepository;
+  private emailService: EmailService;
 
   constructor() {
     this.userRepository = new UserRepository();
+    this.emailService = new EmailService();
   }
 
   // Get a user's profile by ID
@@ -16,7 +19,7 @@ export class UserService {
   async getUserProfile(userId: number): Promise<UserProfileDTO> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new ErrorHandler(404, 'User not found');
+      throw new ErrorHandler(404, "User not found");
     }
 
     return {
@@ -37,18 +40,30 @@ export class UserService {
   ): Promise<UserProfileDTO> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new ErrorHandler(404, 'User not found');
+      throw new ErrorHandler(404, "User not found");
     }
 
     // Check if email is being updated and if it is already taken
     if (data.email && data.email !== user.email) {
       const existingUser = await this.userRepository.findByEmail(data.email);
       if (existingUser) {
-        throw new ErrorHandler(400, 'Email already in use');
+        throw new ErrorHandler(400, "Email already in use");
       }
     }
 
     const updatedUser = await this.userRepository.updateUser(userId, data);
+
+    // Send security notification (non-blocking)
+    const fields = Object.keys(data).filter(
+      (k) => (data as any)[k] !== undefined
+    );
+    if (fields.length > 0) {
+      this.emailService
+        .sendProfileUpdateEmail(updatedUser, fields)
+        .catch((err) => {
+          console.error("[UserService] Profile update email failed:", err);
+        });
+    }
 
     return {
       id: updatedUser.id,

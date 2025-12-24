@@ -1,0 +1,28 @@
+<p>Security Alert for <span class="highlight">{{USER_NAME}}</span>,</p>
+<p>A new security finding has been logged in the system. Immediate review is recommended for triage and remediation.</p>
+
+<table class="data-table">
+  <tr>
+    <td class="label">Finding Title</td>
+    <td class="value">{{ISSUE_TITLE}}</td>
+  </tr>
+  <tr>
+    <td class="label">Assessment Type</td>
+    <td class="value">{{ISSUE_TYPE}}</td>
+  </tr>
+  <tr>
+    <td class="label">Risk Severity</td>
+    <td class="value" style="color: #FF4D4D;">{{ISSUE_PRIORITY}}</td>
+  </tr>
+  <tr>
+    <td class="label">Log Status</td>
+    <td class="value">{{ISSUE_STATUS}}</td>
+  </tr>
+</table>
+
+<p><strong style="color: #FFFFFF;">Executive Summary:</strong></p>
+<p style="font-size: 14px; background: #000; padding: 15px; border-left: 2px solid #00FFB2;">
+  {{ISSUE_DESCRIPTION}}
+</p>
+
+<p>Click below to open the secure advisory and begin the remediation workflow.</p>

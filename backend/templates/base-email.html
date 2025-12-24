@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{EMAIL_TITLE}}</title>
+  <style>
+    /* Reset & Base Styles */
+    body { 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif; 
+      background-color: #080000; 
+      color: #FFFFFF; 
+    }
+    .wrapper {
+      width: 100%;
+      table-layout: fixed;
+      background-color: #080000;
+      padding-bottom: 40px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #080000;
+      border: 1px solid #1A1A1A;
+      /* Subtle Cyber Grid Background */
+      background-image: linear-gradient(#111 1px, transparent 1px), linear-gradient(90deg, #111 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    /* Header */
+    .header {
+      padding: 40px 20px;
+      text-align: center;
+      border-bottom: 1px solid #1A1A1A;
+    }
+    .logo-img {
+      max-width: 180px;
+      height: auto;
+    }
+    .logo-fallback {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      color: #00FFB2;
+      text-transform: uppercase;
+    }
+
+    /* Content Area */
+    .content {
+      padding: 40px 30px;
+      line-height: 1.8;
+    }
+    h1, h2, h3 {
+      color: #00FFB2;
+      margin-top: 0;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    p {
+      margin-bottom: 20px;
+      font-size: 16px;
+      color: #CCCCCC;
+    }
+    .highlight {
+      color: #00FFB2;
+      font-weight: 600;
+    }
+
+    /* Table Design for Issues */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 30px 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      border: 1px solid #1A1A1A;
+    }
+    .data-table td {
+      padding: 15px;
+      border-bottom: 1px solid #1A1A1A;
+      font-size: 14px;
+    }
+    .label {
+      color: #666666;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 1px;
+      font-weight: 700;
+      width: 30%;
+    }
+    .value {
+      color: #FFFFFF;
+      font-weight: 500;
+    }
+
+    /* Button / CTA */
+    .btn-container {
+      text-align: center;
+      margin: 40px 0 20px 0;
+    }
+    .btn {
+      background-color: #00FFB2;
+      color: #080000 !important;
+      padding: 16px 35px;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: inline-block;
+      box-shadow: 0 4px 15px rgba(0, 255, 178, 0.3);
+    }
+
+    /* Footer */
+    .footer {
+      padding: 30px;
+      text-align: center;
+      font-size: 12px;
+      color: #444444;
+      border-top: 1px solid #1A1A1A;
+    }
+    .footer a {
+      color: #666666;
+      text-decoration: underline;
+    }
+
+    /* Mobile Responsiveness */
+    @media screen and (max-width: 600px) {
+      .content {
+        padding: 30px 20px;
+      }
+      .btn {
+        width: 80%;
+        padding: 16px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <div class="header">
+        <!-- Logo from ApniSec Assets -->
+        <img src="https://assets.apnisec.com/public/apnisec-ui/logo.svg" alt="ApniSec Logo" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <div class="logo-fallback" style="display:none;">ApniSec</div>
+      </div>
+      
+      <div class="content">
+        <h2>{{EMAIL_TITLE}}</h2>
+        {{EMAIL_BODY}}
+        
+        {{#if CTA_BUTTON}}
+        <div class="btn-container">
+          <a href="{{CTA_URL}}" class="btn">{{CTA_TEXT}}</a>
+        </div>
+        {{/if}}
+      </div>
+      
+      <div class="footer">
+        <p>© 2024 ApniSec Cybersecurity. Advanced Security Solutions.</p>
+        <p>{{FOOTER_TEXT}}</p>
+        <p><a href="https://apnisec.com">Visit Website</a> | <a href="https://apnisec.com/privacy">Privacy Policy</a></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

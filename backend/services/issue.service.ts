@@ -1,43 +1,66 @@
-import { IssueRepository } from '../repositories/issue.repository';
-import { ErrorHandler } from '../utils/error.handler';
-import { CreateIssueDTO, UpdateIssueDTO, IssueResponseDTO, IssueType } from '../models/issue.model';
+import { IssueRepository } from "../repositories/issue.repository";
+import { UserRepository } from "../repositories/user.repository";
+import { ErrorHandler } from "../utils/error.handler";
+import { EmailService } from "./email.service";
+import {
+  CreateIssueDTO,
+  UpdateIssueDTO,
+  IssueResponseDTO,
+  IssueType,
+} from "../models/issue.model";
 
 export class IssueService {
   private issueRepository: IssueRepository;
+  private userRepository: UserRepository;
+  private emailService: EmailService;
 
   constructor() {
     this.issueRepository = new IssueRepository();
+    this.userRepository = new UserRepository();
+    this.emailService = new EmailService();
   }
 
   // Get all issues for a user, optional type filter
   // Takes: userId (number), optional typeFilter (string)
   // Returns: array of IssueResponseDTO
-  async getAllIssues(userId: number, typeFilter?: string): Promise<IssueResponseDTO[]> {
+  async getAllIssues(
+    userId: number,
+    typeFilter?: string
+  ): Promise<IssueResponseDTO[]> {
     let validatedType: IssueType | undefined;
     if (typeFilter) {
-      const upperType = typeFilter.toUpperCase().replace(/\s+/g, '_').replace(/-/g, '_');
+      const upperType = typeFilter
+        .toUpperCase()
+        .replace(/\s+/g, "_")
+        .replace(/-/g, "_");
       if (!Object.values(IssueType).includes(upperType as IssueType)) {
-        throw new ErrorHandler(400, 'Invalid issue type filter');
+        throw new ErrorHandler(400, "Invalid issue type filter");
       }
       validatedType = upperType as IssueType;
     }
 
-    const issues = await this.issueRepository.findAllByUserId(userId, validatedType);
-    return issues.map(issue => this.mapToDTO(issue));
+    const issues = await this.issueRepository.findAllByUserId(
+      userId,
+      validatedType
+    );
+    return issues.map((issue) => this.mapToDTO(issue));
   }
 
   // Get a specific issue by ID for a user
   // Takes: userId (number), issueId (number)
   // Returns: IssueResponseDTO or throws error
-  async getIssueById(userId: number, issueId: number): Promise<IssueResponseDTO> {
+  async getIssueById(
+    userId: number,
+    issueId: number
+  ): Promise<IssueResponseDTO> {
     const issue = await this.issueRepository.findById(issueId);
-    
+
     if (!issue) {
-      throw new ErrorHandler(404, 'Issue not found');
+      throw new ErrorHandler(404, "Issue not found");
     }
 
     if (issue.userId !== userId) {
-      throw new ErrorHandler(403, 'Forbidden: You do not own this issue');
+      throw new ErrorHandler(403, "Forbidden: You do not own this issue");
     }
 
     return this.mapToDTO(issue);
@@ -46,23 +69,46 @@ export class IssueService {
   // Create a new issue
   // Takes: userId (number), CreateIssueDTO
   // Returns: IssueResponseDTO
-  async createIssue(userId: number, data: CreateIssueDTO): Promise<IssueResponseDTO> {
+  async createIssue(
+    userId: number,
+    data: CreateIssueDTO
+  ): Promise<IssueResponseDTO> {
     const issue = await this.issueRepository.createIssue(userId, data);
-    return this.mapToDTO(issue);
+    const dto = this.mapToDTO(issue);
+
+    // Send notification email (non-blocking)
+    this.userRepository
+      .findById(userId)
+      .then((user) => {
+        if (user) {
+          this.emailService.sendIssueCreatedEmail(user, dto).catch((err) => {
+            console.error("[IssueService] Notification email failure:", err);
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("[IssueService] User lookup for email failed:", err);
+      });
+
+    return dto;
   }
 
   // Update an existing issue
   // Takes: userId (number), issueId (number), UpdateIssueDTO
   // Returns: updated IssueResponseDTO
-  async updateIssue(userId: number, issueId: number, data: UpdateIssueDTO): Promise<IssueResponseDTO> {
+  async updateIssue(
+    userId: number,
+    issueId: number,
+    data: UpdateIssueDTO
+  ): Promise<IssueResponseDTO> {
     const issue = await this.issueRepository.findById(issueId);
-    
+
     if (!issue) {
-      throw new ErrorHandler(404, 'Issue not found');
+      throw new ErrorHandler(404, "Issue not found");
     }
 
     if (issue.userId !== userId) {
-      throw new ErrorHandler(403, 'Forbidden: You do not own this issue');
+      throw new ErrorHandler(403, "Forbidden: You do not own this issue");
     }
 
     const updatedIssue = await this.issueRepository.updateIssue(issueId, data);
@@ -74,13 +120,13 @@ export class IssueService {
   // Returns: void
   async deleteIssue(userId: number, issueId: number): Promise<void> {
     const issue = await this.issueRepository.findById(issueId);
-    
+
     if (!issue) {
-      throw new ErrorHandler(404, 'Issue not found');
+      throw new ErrorHandler(404, "Issue not found");
     }
 
     if (issue.userId !== userId) {
-      throw new ErrorHandler(403, 'Forbidden: You do not own this issue');
+      throw new ErrorHandler(403, "Forbidden: You do not own this issue");
     }
 
     await this.issueRepository.deleteIssue(issueId);

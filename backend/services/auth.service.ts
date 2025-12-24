@@ -1,14 +1,17 @@
-import { UserRepository } from '../repositories/user.repository';
-import { PasswordUtils } from '../utils/password.utils';
-import { JwtUtils } from '../utils/jwt.utils';
-import { ErrorHandler } from '../utils/error.handler';
-import { RegisterDTO, LoginDTO, UserDTO } from '../models/auth.model';
+import { UserRepository } from "../repositories/user.repository";
+import { PasswordUtils } from "../utils/password.utils";
+import { JwtUtils } from "../utils/jwt.utils";
+import { ErrorHandler } from "../utils/error.handler";
+import { EmailService } from "./email.service";
+import { RegisterDTO, LoginDTO, UserDTO } from "../models/auth.model";
 
 export class AuthService {
   private userRepository: UserRepository;
+  private emailService: EmailService;
 
   constructor() {
     this.userRepository = new UserRepository();
+    this.emailService = new EmailService();
   }
 
   // Register a new user
@@ -18,11 +21,20 @@ export class AuthService {
   async registerUser(data: RegisterDTO): Promise<UserDTO> {
     const existingUser = await this.userRepository.findByEmail(data.email);
     if (existingUser) {
-      throw new ErrorHandler(400, 'User already exists');
+      throw new ErrorHandler(400, "User already exists");
     }
 
     const hashedPassword = await PasswordUtils.hashPassword(data.password);
     const user = await this.userRepository.createUser(data, hashedPassword);
+
+    // Send welcome email (non-blocking)
+    // We don't await this so the user response isn't delayed by SMTP
+    this.emailService.sendWelcomeEmail(user).catch((err) => {
+      console.error(
+        "[AuthService] Welcome email failed background execution:",
+        err
+      );
+    });
 
     return {
       id: user.id,
@@ -39,12 +51,15 @@ export class AuthService {
   async loginUser(data: LoginDTO): Promise<{ user: UserDTO; token: string }> {
     const user = await this.userRepository.findByEmail(data.email);
     if (!user) {
-      throw new ErrorHandler(401, 'Invalid credentials');
+      throw new ErrorHandler(401, "Invalid credentials");
     }
 
-    const isMatch = await PasswordUtils.comparePassword(data.password, user.passwordHash);
+    const isMatch = await PasswordUtils.comparePassword(
+      data.password,
+      user.passwordHash
+    );
     if (!isMatch) {
-      throw new ErrorHandler(401, 'Invalid credentials');
+      throw new ErrorHandler(401, "Invalid credentials");
     }
 
     const token = JwtUtils.generateToken({ id: user.id, email: user.email });
