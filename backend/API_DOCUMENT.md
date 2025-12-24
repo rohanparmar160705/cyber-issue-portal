@@ -1,3 +1,60 @@
+# API Documentation
+
+---
+
+## Rate Limiting
+
+All API endpoints are rate-limited to prevent abuse. Rate limits are applied per IP address or authenticated user.
+
+### Rate Limit Headers
+
+Every API response includes the following headers:
+
+```
+X-RateLimit-Limit: 100          # Maximum requests allowed in the time window
+X-RateLimit-Remaining: 95       # Remaining requests in current window
+X-RateLimit-Reset: 1640000900   # Unix timestamp when the limit resets
+```
+
+### Rate Limit Exceeded (429 Response)
+
+When you exceed the rate limit, you'll receive a `429 Too Many Requests` response:
+
+```json
+{
+  "error": "Rate limit exceeded",
+  "message": "Too many requests. Please try again later.",
+  "retryAfter": 847,
+  "limit": 100,
+  "reset": 1640000900
+}
+```
+
+**Additional Header**:
+```
+Retry-After: 847  # Seconds until you can make requests again
+```
+
+### Endpoint-Specific Limits
+
+| Endpoint | Method | Limit | Window | Reason |
+|----------|--------|-------|--------|--------|
+| `/api/auth/register` | POST | 5 | 15 min | Prevent spam accounts |
+| `/api/auth/login` | POST | 10 | 15 min | Prevent brute-force |
+| `/api/auth/logout` | POST | 20 | 15 min | Low risk |
+| `/api/auth/me` | GET | 100 | 15 min | Frequent polling allowed |
+| `/api/users/profile` | GET | 100 | 15 min | Standard read limit |
+| `/api/users/profile` | PUT | 20 | 15 min | Prevent abuse |
+| `/api/issues` | GET | 100 | 15 min | Standard read limit |
+| `/api/issues` | POST | 30 | 15 min | Prevent spam |
+| `/api/issues/[id]` | GET/PUT/DELETE | 50-100 | 15 min | Varies by method |
+| `/api/projects` | GET | 100 | 15 min | Standard read limit |
+| `/api/projects` | POST | 20 | 15 min | Limit creation |
+| `/api/projects/[id]` | GET/PUT/DELETE | 30-100 | 15 min | Varies by method |
+| **Default** | ALL | 100 | 15 min | Fallback for unspecified |
+
+---
+
 # Auth API Documentation
 
 Base URL: `http://localhost:3000/api/auth`
