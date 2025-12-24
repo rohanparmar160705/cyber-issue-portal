@@ -81,3 +81,36 @@ export const AuthAPI = {
     return response.json();
   },
 };
+
+export const USER_API_BASE_URL = '/api/users';
+
+export const UserAPI = {
+  async getProfile(): Promise<UserResponse> {
+    const response = await fetch(`${USER_API_BASE_URL}/profile`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch profile');
+    }
+
+    return response.json();
+  },
+
+  async updateProfile(data: { name?: string; email?: string }): Promise<UserResponse> {
+    const response = await fetch(`${USER_API_BASE_URL}/profile`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to update profile');
+    }
+
+    return response.json();
+  },
+};
+

@@ -141,6 +141,70 @@ Invoke-RestMethod -Uri "http://localhost:3000/api/auth/logout" -Method Post -Web
 try {
     Invoke-RestMethod -Uri "http://localhost:3000/api/auth/me" -Method Get -WebSession $session
 } catch {
-    Write-Host "Request failed as expected: $($_.Exception.Message)"
+// ... previous content ...
+
+---
+
+# User API Documentation
+
+Base URL: `http://localhost:3000/api/users`
+
+## 1. Get User Profile
+
+**Endpoint:** `GET /profile`
+**Headers:** Requires `token` cookie.
+
+**Response (200 OK):**
+```json
+{
+  "id": 1,
+  "email": "user@example.com",
+  "name": "John Doe",
+  "createdAt": "2023-10-27T10:00:00.000Z"
 }
 ```
+
+## 2. Update User Profile
+
+**Endpoint:** `PUT /profile`
+**Headers:** Requires `token` cookie.
+**Content-Type:** `application/json`
+
+**Request Body:**
+```json
+{
+  "name": "Jane Doe",
+  "email": "newemail@example.com" // Optional
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "id": 1,
+  "email": "newemail@example.com",
+  "name": "Jane Doe",
+  "createdAt": "2023-10-27T10:00:00.000Z"
+}
+```
+
+---
+
+# PowerShell Testing Commands (Cont.)
+
+### 6. Get Profile
+```powershell
+$profile = Invoke-RestMethod -Uri "http://localhost:3000/api/users/profile" -Method Get -WebSession $session
+$profile | ConvertTo-Json -Depth 5
+```
+
+### 7. Update Profile
+```powershell
+$updateBody = @{
+    name = "Updated PowerShell User"
+} | ConvertTo-Json
+
+$updatedProfile = Invoke-RestMethod -Uri "http://localhost:3000/api/users/profile" -Method Put -Body $updateBody -ContentType "application/json" -WebSession $session
+$updatedProfile | ConvertTo-Json -Depth 5
+```
+

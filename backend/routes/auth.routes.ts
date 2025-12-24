@@ -3,13 +3,15 @@ import { AuthController } from '../controllers/auth.controller';
 
 const authController = new AuthController();
 
-export async function handleRequests(req: NextRequest, { params }: { params: Promise<{ action: string }> }) {
+// General request handler for auth routes
+// Supports POST: register, login, logout
+// Supports GET: me
+export async function handleRequests(
+  req: NextRequest,
+  { params }: { params: Promise<{ action: string }> }
+) {
   const { action } = await params;
 
-  // Since it's a catch-all, we check the action
-  // Actually, standard Dynamic Routes are array for catch-all [...action] or string for [action]
-  // Assuming [action] as the user wants specific simplified routes
-  
   if (req.method === 'POST') {
     switch (action) {
       case 'register':
@@ -30,18 +32,23 @@ export async function handleRequests(req: NextRequest, { params }: { params: Pro
     }
   }
 
+  // Unsupported HTTP method
   return NextResponse.json({ message: 'Method Not Allowed' }, { status: 405 });
 }
 
-// Exports for Next.js App Router (standard exports GET, POST, etc.)
-// However, since we want a "single route file", we can export a general handler if we use catch-all.
-// If this file IS the route file used by Next.js, it needs GET/POST exports.
-// If this file is just the logic, we export functions.
-// I will export standard GET/POST methods that delegate to handleRequests.
+// Standard GET/POST exports for Next.js App Router
 export async function GET(req: NextRequest, context: any) {
   return handleRequests(req, context);
 }
 
+// Standard POST export for Next.js App Router
 export async function POST(req: NextRequest, context: any) {
   return handleRequests(req, context);
 }
+
+/*
+  Notes:
+  - Acts as a single route handler for auth actions
+  - Delegates requests to AuthController methods
+  - Can handle multiple actions via dynamic/catch-all route
+*/

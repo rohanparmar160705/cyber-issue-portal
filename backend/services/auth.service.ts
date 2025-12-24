@@ -11,6 +11,10 @@ export class AuthService {
     this.userRepository = new UserRepository();
   }
 
+  // Register a new user
+  // Takes: RegisterDTO
+  // Returns: UserDTO
+  // Throws: ErrorHandler if user already exists
   async registerUser(data: RegisterDTO): Promise<UserDTO> {
     const existingUser = await this.userRepository.findByEmail(data.email);
     if (existingUser) {
@@ -28,6 +32,10 @@ export class AuthService {
     };
   }
 
+  // Login user and generate JWT
+  // Takes: LoginDTO
+  // Returns: object containing UserDTO and token
+  // Throws: ErrorHandler if credentials are invalid
   async loginUser(data: LoginDTO): Promise<{ user: UserDTO; token: string }> {
     const user = await this.userRepository.findByEmail(data.email);
     if (!user) {
@@ -52,14 +60,31 @@ export class AuthService {
     };
   }
 
+  // Get user by email
+  // Takes: email (string)
+  // Returns: UserDTO or null if not found
   async getCurrentUser(email: string): Promise<UserDTO | null> {
-     const user = await this.userRepository.findByEmail(email);
-     if(!user) return null;
-     return {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        createdAt: user.createdAt
-     }
+    const user = await this.userRepository.findByEmail(email);
+    if (!user) return null;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      createdAt: user.createdAt,
+    };
   }
 }
+
+/*
+  Purpose:
+
+  - Contains business logic for authentication (register, login, get user)
+  - Interacts with UserRepository for database operations
+  - Handles password hashing and verification
+  - Generates JWT tokens for authenticated users
+
+  Notes:
+
+  - All methods return sanitized UserDTO objects (without password)
+  - Throws ErrorHandler for any invalid operation (e.g., duplicate user, invalid credentials)
+*/
