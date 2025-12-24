@@ -1,4 +1,4 @@
-# Copy and paste this script as it is in terminal
+# Copy and paste this script as it is in terminal or run directly in powershell
 Clear-Host
 
 Write-Host "========================================="
@@ -169,8 +169,105 @@ $deleteResponse = Invoke-RestMethod `
 
 $deleteResponse | ConvertTo-Json -Depth 10
 
+# ---------------- CREATE PROJECT ----------------
+Write-Host "`n[13] CREATE PROJECT"
+
+$projectBody = @{
+    name = "AWS Security Assessment Q4 2024"
+    description = "Comprehensive security audit for AWS infrastructure including IAM, S3, EC2, and VPC configurations"
+    clientName = "Acme Corporation"
+    status = "ACTIVE"
+} | ConvertTo-Json
+
+$newProject = Invoke-RestMethod `
+    -Uri "$BaseUrl/projects" `
+    -Method Post `
+    -Body $projectBody `
+    -ContentType "application/json" `
+    -WebSession $session
+
+$newProject | ConvertTo-Json -Depth 10
+$projectId = $newProject.id
+
+# ---------------- GET ALL PROJECTS ----------------
+Write-Host "`n[14] GET ALL PROJECTS"
+
+$allProjects = Invoke-RestMethod `
+    -Uri "$BaseUrl/projects" `
+    -Method Get `
+    -WebSession $session
+
+$allProjects | ConvertTo-Json -Depth 10
+
+# ---------------- GET SINGLE PROJECT ----------------
+Write-Host "`n[15] GET SINGLE PROJECT"
+
+$singleProject = Invoke-RestMethod `
+    -Uri "$BaseUrl/projects/$projectId" `
+    -Method Get `
+    -WebSession $session
+
+$singleProject | ConvertTo-Json -Depth 10
+
+# ---------------- CREATE ISSUE LINKED TO PROJECT ----------------
+Write-Host "`n[16] CREATE ISSUE LINKED TO PROJECT"
+
+$linkedIssueBody = @{
+    type = "CLOUD_SECURITY"
+    title = "IAM Policy Too Permissive"
+    description = "Admin access granted to multiple users without MFA requirement"
+    priority = "CRITICAL"
+    status = "OPEN"
+} | ConvertTo-Json
+
+$linkedIssue = Invoke-RestMethod `
+    -Uri "$BaseUrl/issues" `
+    -Method Post `
+    -Body $linkedIssueBody `
+    -ContentType "application/json" `
+    -WebSession $session
+
+$linkedIssue | ConvertTo-Json -Depth 10
+
+# ---------------- GET PROJECT ISSUES ----------------
+Write-Host "`n[17] GET PROJECT ISSUES"
+
+$projectIssues = Invoke-RestMethod `
+    -Uri "$BaseUrl/projects/$projectId/issues" `
+    -Method Get `
+    -WebSession $session
+
+$projectIssues | ConvertTo-Json -Depth 10
+
+# ---------------- UPDATE PROJECT ----------------
+Write-Host "`n[18] UPDATE PROJECT"
+
+$updateProjectBody = @{
+    name = "AWS Security Assessment Q4 2024 - COMPLETED"
+    status = "COMPLETED"
+} | ConvertTo-Json
+
+$updatedProject = Invoke-RestMethod `
+    -Uri "$BaseUrl/projects/$projectId" `
+    -Method Put `
+    -Body $updateProjectBody `
+    -ContentType "application/json" `
+    -WebSession $session
+
+$updatedProject | ConvertTo-Json -Depth 10
+
+# ---------------- DELETE PROJECT ----------------
+Write-Host "`n[19] DELETE PROJECT"
+
+$deleteProjectResponse = Invoke-RestMethod `
+    -Uri "$BaseUrl/projects/$projectId" `
+    -Method Delete `
+    -WebSession $session
+
+$deleteProjectResponse | ConvertTo-Json -Depth 10
+
 # ---------------- LOGOUT ----------------
-Write-Host "`n[13] LOGOUT"
+Write-Host "`n[20] LOGOUT"
 
 $logoutResponse = Invoke-RestMethod `
     -Uri "$BaseUrl/auth/logout" `
@@ -180,7 +277,7 @@ $logoutResponse = Invoke-RestMethod `
 $logoutResponse | ConvertTo-Json -Depth 10
 
 # ---------------- VERIFY LOGOUT ----------------
-Write-Host "`n[14] VERIFY LOGOUT (EXPECTED FAILURE)"
+Write-Host "`n[21] VERIFY LOGOUT (EXPECTED FAILURE)"
 
 try {
     Invoke-RestMethod `

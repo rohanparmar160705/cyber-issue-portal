@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleRequests as authHandler } from '../../../backend/routes/auth.routes';
 import { handleRequests as userHandler } from '../../../backend/routes/user.routes';
 import { handleRequests as issueHandler } from '../../../backend/routes/issue.routes';
+import { handleRequests as projectHandler } from '../../../backend/routes/project.routes';
 
 // Universal dispatcher for all /api/* requests
 // Delegates to specific route handlers based on URL path
@@ -27,8 +28,8 @@ async function dispatch(req: NextRequest) {
   // Remove '/api/' and split path
   const pathParts = pathname.replace(/^\/api\//, '').split('/');
 
-  const domain = pathParts[0]; // e.g., 'auth', 'users', 'issues'
-  const action = pathParts[1]; // e.g., 'login', 'profile', '123'
+  const domain = pathParts[0]; // e.g., 'auth', 'users', 'issues', 'projects'
+  const action = pathParts.slice(1).join('/'); // e.g., 'login', 'profile', '123', '123/issues'
 
   // Mock context to match route handler signature
   const mockContext = { 
@@ -41,6 +42,8 @@ async function dispatch(req: NextRequest) {
     return userHandler(req, mockContext);
   } else if (domain === 'issues') {
     return issueHandler(req, mockContext);
+  } else if (domain === 'projects') {
+    return projectHandler(req, mockContext);
   }
 
   return NextResponse.json({ message: 'Not Found' }, { status: 404 });

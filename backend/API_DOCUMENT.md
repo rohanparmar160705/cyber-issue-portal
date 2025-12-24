@@ -388,4 +388,214 @@ $deleteResponse = Invoke-RestMethod -Uri "http://localhost:3000/api/issues/$issu
 $deleteResponse | ConvertTo-Json -Depth 5
 ```
 
+---
+
+# Projects API Documentation
+
+Base URL: `http://localhost:3000/api/projects`
+
+## 1. Get All Projects
+
+**Endpoint:** `GET /projects`
+**Headers:** Requires `token` cookie.
+
+**Response (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "name": "AWS Security Assessment Q4 2024",
+    "description": "Comprehensive security audit for AWS infrastructure",
+    "clientName": "Acme Corporation",
+    "status": "ACTIVE",
+    "createdAt": "2023-10-27T10:00:00.000Z",
+    "updatedAt": "2023-10-27T10:00:00.000Z",
+    "issueCount": 5
+  }
+]
+```
+
+## 2. Create Project
+
+**Endpoint:** `POST /projects`
+**Headers:** Requires `token` cookie.
+**Content-Type:** `application/json`
+
+**Request Body:**
+```json
+{
+  "name": "AWS Security Assessment Q4 2024",
+  "description": "Comprehensive security audit for AWS infrastructure",
+  "clientName": "Acme Corporation",
+  "status": "ACTIVE"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "name": "AWS Security Assessment Q4 2024",
+  "description": "Comprehensive security audit for AWS infrastructure",
+  "clientName": "Acme Corporation",
+  "status": "ACTIVE",
+  "createdAt": "2023-10-27T10:00:00.000Z",
+  "updatedAt": "2023-10-27T10:00:00.000Z"
+}
+```
+
+## 3. Get Single Project
+
+**Endpoint:** `GET /projects/{id}`
+**Headers:** Requires `token` cookie.
+
+**Response (200 OK):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "name": "AWS Security Assessment Q4 2024",
+  "description": "Comprehensive security audit for AWS infrastructure",
+  "clientName": "Acme Corporation",
+  "status": "ACTIVE",
+  "createdAt": "2023-10-27T10:00:00.000Z",
+  "updatedAt": "2023-10-27T10:00:00.000Z",
+  "issueCount": 5
+}
+```
+
+## 4. Update Project
+
+**Endpoint:** `PUT /projects/{id}`
+**Headers:** Requires `token` cookie.
+**Content-Type:** `application/json`
+
+**Request Body:**
+```json
+{
+  "name": "Updated Project Name",
+  "status": "COMPLETED"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "name": "Updated Project Name",
+  "description": "Comprehensive security audit for AWS infrastructure",
+  "clientName": "Acme Corporation",
+  "status": "COMPLETED",
+  "createdAt": "2023-10-27T10:00:00.000Z",
+  "updatedAt": "2023-10-27T11:00:00.000Z"
+}
+```
+
+## 5. Delete Project
+
+**Endpoint:** `DELETE /projects/{id}`
+**Headers:** Requires `token` cookie.
+
+**Response (200 OK):**
+```json
+{
+  "message": "Project deleted successfully"
+}
+```
+
+## 6. Get Project Issues (Nested Endpoint)
+
+**Endpoint:** `GET /projects/{id}/issues`
+**Headers:** Requires `token` cookie.
+
+**Response (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "projectId": 1,
+    "type": "CLOUD_SECURITY",
+    "title": "S3 Bucket Misconfiguration",
+    "description": "Public access enabled",
+    "priority": "HIGH",
+    "status": "OPEN",
+    "createdAt": "2023-10-27T10:00:00.000Z",
+    "updatedAt": "2023-10-27T10:00:00.000Z"
+  }
+]
+```
+
+---
+
+# PowerShell Testing Commands (Projects)
+
+### 14. Create Project
+```powershell
+$projectBody = @{
+    name = "AWS Security Assessment Q4 2024"
+    description = "Comprehensive security audit for AWS infrastructure including IAM, S3, EC2, and VPC configurations"
+    clientName = "Acme Corporation"
+    status = "ACTIVE"
+} | ConvertTo-Json
+
+$newProject = Invoke-RestMethod -Uri "http://localhost:3000/api/projects" -Method Post -Body $projectBody -ContentType "application/json" -WebSession $session
+$newProject | ConvertTo-Json -Depth 5
+$projectId = $newProject.id
+```
+
+### 15. Get All Projects
+```powershell
+$allProjects = Invoke-RestMethod -Uri "http://localhost:3000/api/projects" -Method Get -WebSession $session
+$allProjects | ConvertTo-Json -Depth 5
+```
+
+### 16. Get Single Project
+```powershell
+$singleProject = Invoke-RestMethod -Uri "http://localhost:3000/api/projects/$projectId" -Method Get -WebSession $session
+$singleProject | ConvertTo-Json -Depth 5
+```
+
+### 17. Create Issue Linked to Project
+```powershell
+$linkedIssueBody = @{
+    type = "CLOUD_SECURITY"
+    title = "IAM Policy Too Permissive"
+    description = "Admin access granted to multiple users without MFA requirement"
+    priority = "CRITICAL"
+    status = "OPEN"
+    projectId = $projectId
+} | ConvertTo-Json
+
+$linkedIssue = Invoke-RestMethod -Uri "http://localhost:3000/api/issues" -Method Post -Body $linkedIssueBody -ContentType "application/json" -WebSession $session
+$linkedIssue | ConvertTo-Json -Depth 5
+```
+
+### 18. Get Project Issues
+```powershell
+$projectIssues = Invoke-RestMethod -Uri "http://localhost:3000/api/projects/$projectId/issues" -Method Get -WebSession $session
+$projectIssues | ConvertTo-Json -Depth 5
+```
+
+### 19. Update Project
+```powershell
+$updateProjectBody = @{
+    name = "AWS Security Assessment Q4 2024 - COMPLETED"
+    status = "COMPLETED"
+} | ConvertTo-Json
+
+$updatedProject = Invoke-RestMethod -Uri "http://localhost:3000/api/projects/$projectId" -Method Put -Body $updateProjectBody -ContentType "application/json" -WebSession $session
+$updatedProject | ConvertTo-Json -Depth 5
+```
+
+### 20. Delete Project
+```powershell
+$deleteProjectResponse = Invoke-RestMethod -Uri "http://localhost:3000/api/projects/$projectId" -Method Delete -WebSession $session
+$deleteProjectResponse | ConvertTo-Json -Depth 5
+```
+
+
 

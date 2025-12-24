@@ -8,18 +8,21 @@ datasource db {
 }
 
  model User {
-   id           Int      @id @default(autoincrement())
-   email        String   @unique
-   passwordHash String   @map("password_hash")
+   id           Int       @id @default(autoincrement())
+   email        String    @unique
+   passwordHash String    @map("password_hash")
    name         String?
-   createdAt    DateTime @default(now()) @map("created_at")
+   createdAt    DateTime  @default(now()) @map("created_at")
    issues       Issue[]
+   projects     Project[]
  }
 
  model Issue {
    id          Int         @id @default(autoincrement())
    user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
    userId      Int         @map("user_id")
+   project     Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
+   projectId   Int?        @map("project_id")
    type        IssueType
    title       String
    description String      @db.Text
@@ -27,6 +30,26 @@ datasource db {
    status      IssueStatus @default(OPEN)
    createdAt   DateTime    @default(now()) @map("created_at")
    updatedAt   DateTime    @updatedAt @map("updated_at")
+ }
+
+ model Project {
+   id          Int           @id @default(autoincrement())
+   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+   userId      Int           @map("user_id")
+   name        String
+   description String        @db.Text
+   clientName  String?       @map("client_name")
+   status      ProjectStatus @default(ACTIVE)
+   createdAt   DateTime      @default(now()) @map("created_at")
+   updatedAt   DateTime      @updatedAt @map("updated_at")
+   issues      Issue[]
+ }
+
+ enum ProjectStatus {
+   ACTIVE
+   COMPLETED
+   ON_HOLD
+   ARCHIVED
  }
 
  enum IssueType {
