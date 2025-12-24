@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cyber-issue-portal
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    env:
+      - DATABASE_URL
+      - JWT_SECRET
+      - RESEND_API_KEY
+    healthCheckPath: /api/health
+    staticPublishPath: .next
+    ports:
+      - 3000
