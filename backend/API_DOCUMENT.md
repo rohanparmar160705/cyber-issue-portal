@@ -208,3 +208,184 @@ $updatedProfile = Invoke-RestMethod -Uri "http://localhost:3000/api/users/profil
 $updatedProfile | ConvertTo-Json -Depth 5
 ```
 
+---
+
+# Issues API Documentation
+
+Base URL: `http://localhost:3000/api/issues`
+
+## 1. Get All Issues
+
+**Endpoint:** `GET /issues`
+**Headers:** Requires `token` cookie.
+**Query Parameters:** 
+- `type` (optional): Filter by issue type (`CLOUD_SECURITY`, `RETEAM_ASSESSMENT`, `VAPT`)
+
+**Response (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "type": "CLOUD_SECURITY",
+    "title": "S3 Bucket Misconfiguration",
+    "description": "Public access enabled on production bucket",
+    "priority": "HIGH",
+    "status": "OPEN",
+    "createdAt": "2023-10-27T10:00:00.000Z",
+    "updatedAt": "2023-10-27T10:00:00.000Z"
+  }
+]
+```
+
+## 2. Create Issue
+
+**Endpoint:** `POST /issues`
+**Headers:** Requires `token` cookie.
+**Content-Type:** `application/json`
+
+**Request Body:**
+```json
+{
+  "type": "CLOUD_SECURITY",
+  "title": "S3 Bucket Misconfiguration",
+  "description": "Public access enabled on production bucket",
+  "priority": "HIGH",
+  "status": "OPEN"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "type": "CLOUD_SECURITY",
+  "title": "S3 Bucket Misconfiguration",
+  "description": "Public access enabled on production bucket",
+  "priority": "HIGH",
+  "status": "OPEN",
+  "createdAt": "2023-10-27T10:00:00.000Z",
+  "updatedAt": "2023-10-27T10:00:00.000Z"
+}
+```
+
+## 3. Get Single Issue
+
+**Endpoint:** `GET /issues/{id}`
+**Headers:** Requires `token` cookie.
+
+**Response (200 OK):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "type": "CLOUD_SECURITY",
+  "title": "S3 Bucket Misconfiguration",
+  "description": "Public access enabled on production bucket",
+  "priority": "HIGH",
+  "status": "OPEN",
+  "createdAt": "2023-10-27T10:00:00.000Z",
+  "updatedAt": "2023-10-27T10:00:00.000Z"
+}
+```
+
+## 4. Update Issue
+
+**Endpoint:** `PUT /issues/{id}`
+**Headers:** Requires `token` cookie.
+**Content-Type:** `application/json`
+
+**Request Body:**
+```json
+{
+  "title": "Updated Title",
+  "description": "Updated description",
+  "priority": "CRITICAL",
+  "status": "IN_PROGRESS"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "type": "CLOUD_SECURITY",
+  "title": "Updated Title",
+  "description": "Updated description",
+  "priority": "CRITICAL",
+  "status": "IN_PROGRESS",
+  "createdAt": "2023-10-27T10:00:00.000Z",
+  "updatedAt": "2023-10-27T11:00:00.000Z"
+}
+```
+
+## 5. Delete Issue
+
+**Endpoint:** `DELETE /issues/{id}`
+**Headers:** Requires `token` cookie.
+
+**Response (200 OK):**
+```json
+{
+  "message": "Issue deleted successfully"
+}
+```
+
+---
+
+# PowerShell Testing Commands (Issues)
+
+### 8. Create Issue
+```powershell
+$issueBody = @{
+    type = "CLOUD_SECURITY"
+    title = "S3 Bucket Misconfiguration"
+    description = "Public access enabled on production S3 bucket containing sensitive data"
+    priority = "HIGH"
+    status = "OPEN"
+} | ConvertTo-Json
+
+$newIssue = Invoke-RestMethod -Uri "http://localhost:3000/api/issues" -Method Post -Body $issueBody -ContentType "application/json" -WebSession $session
+$newIssue | ConvertTo-Json -Depth 5
+$issueId = $newIssue.id
+```
+
+### 9. Get All Issues
+```powershell
+$allIssues = Invoke-RestMethod -Uri "http://localhost:3000/api/issues" -Method Get -WebSession $session
+$allIssues | ConvertTo-Json -Depth 5
+```
+
+### 10. Filter Issues by Type
+```powershell
+$cloudIssues = Invoke-RestMethod -Uri "http://localhost:3000/api/issues?type=CLOUD_SECURITY" -Method Get -WebSession $session
+$cloudIssues | ConvertTo-Json -Depth 5
+```
+
+### 11. Get Single Issue
+```powershell
+$singleIssue = Invoke-RestMethod -Uri "http://localhost:3000/api/issues/$issueId" -Method Get -WebSession $session
+$singleIssue | ConvertTo-Json -Depth 5
+```
+
+### 12. Update Issue
+```powershell
+$updateIssueBody = @{
+    title = "Updated: S3 Bucket Security Issue"
+    status = "IN_PROGRESS"
+    priority = "CRITICAL"
+} | ConvertTo-Json
+
+$updatedIssue = Invoke-RestMethod -Uri "http://localhost:3000/api/issues/$issueId" -Method Put -Body $updateIssueBody -ContentType "application/json" -WebSession $session
+$updatedIssue | ConvertTo-Json -Depth 5
+```
+
+### 13. Delete Issue
+```powershell
+$deleteResponse = Invoke-RestMethod -Uri "http://localhost:3000/api/issues/$issueId" -Method Delete -WebSession $session
+$deleteResponse | ConvertTo-Json -Depth 5
+```
+
+

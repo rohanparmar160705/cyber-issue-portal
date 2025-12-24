@@ -114,3 +114,108 @@ export const UserAPI = {
   },
 };
 
+export const ISSUE_API_BASE_URL = '/api/issues';
+
+export interface IssueResponse {
+  id: number;
+  userId: number;
+  type: string;
+  title: string;
+  description: string;
+  priority: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateIssuePayload {
+  type: string;
+  title: string;
+  description: string;
+  priority?: string;
+  status?: string;
+}
+
+export interface UpdateIssuePayload {
+  title?: string;
+  description?: string;
+  priority?: string;
+  status?: string;
+}
+
+export const IssueAPI = {
+  async getAllIssues(typeFilter?: string): Promise<IssueResponse[]> {
+    const url = typeFilter 
+      ? `${ISSUE_API_BASE_URL}?type=${encodeURIComponent(typeFilter)}`
+      : ISSUE_API_BASE_URL;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch issues');
+    }
+
+    return response.json();
+  },
+
+  async getIssueById(id: number): Promise<IssueResponse> {
+    const response = await fetch(`${ISSUE_API_BASE_URL}/${id}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch issue');
+    }
+
+    return response.json();
+  },
+
+  async createIssue(data: CreateIssuePayload): Promise<IssueResponse> {
+    const response = await fetch(ISSUE_API_BASE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create issue');
+    }
+
+    return response.json();
+  },
+
+  async updateIssue(id: number, data: UpdateIssuePayload): Promise<IssueResponse> {
+    const response = await fetch(`${ISSUE_API_BASE_URL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to update issue');
+    }
+
+    return response.json();
+  },
+
+  async deleteIssue(id: number): Promise<{ message: string }> {
+    const response = await fetch(`${ISSUE_API_BASE_URL}/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to delete issue');
+    }
+
+    return response.json();
+  },
+};
+
+
