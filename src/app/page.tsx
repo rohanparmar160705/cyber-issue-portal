@@ -6,7 +6,6 @@ import Link from "next/link";
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-black text-white">
-      <Navbar />
       <Hero />
 
       {/* Services Section */}
@@ -68,7 +67,7 @@ export default function LandingPage() {
               Apni<span className="text-primary not-italic">Sec</span>
             </span>
             <span className="text-neutral-600 text-xs font-medium ml-4">
-              © 2024 ApniSec Portal
+              © 2025 ApniSec Portal
             </span>
           </div>
 

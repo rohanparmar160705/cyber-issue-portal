@@ -14,6 +14,10 @@ export const metadata: Metadata = {
     "Next-gen vulnerability management and real-time security auditing portal.",
 };
 
+import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "sonner";
+import { Navbar } from "@/components/landing/Navbar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,7 +28,11 @@ export default function RootLayout({
       <body
         className={`${montserrat.variable} font-sans antialiased bg-black text-white`}
       >
-        {children}
+        <AuthProvider>
+          <Navbar />
+          {children}
+          <Toaster richColors position="top-right" theme="dark" />
+        </AuthProvider>
       </body>
     </html>
   );

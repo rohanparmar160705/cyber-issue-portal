@@ -22,19 +22,19 @@ export interface AuthResponse {
   message?: string;
 }
 
-export const API_BASE_URL = '/api/auth';
+export const API_BASE_URL = "/api/auth";
 
 export const AuthAPI = {
   async register(data: RegisterPayload): Promise<UserResponse> {
     const response = await fetch(`${API_BASE_URL}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Registration failed');
+      throw new Error(errorData.message || "Registration failed");
     }
 
     return response.json();
@@ -42,14 +42,14 @@ export const AuthAPI = {
 
   async login(data: LoginPayload): Promise<AuthResponse> {
     const response = await fetch(`${API_BASE_URL}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Login failed');
+      throw new Error(errorData.message || "Login failed");
     }
 
     return response.json();
@@ -57,12 +57,12 @@ export const AuthAPI = {
 
   async logout(): Promise<{ message: string }> {
     const response = await fetch(`${API_BASE_URL}/logout`, {
-      method: 'POST',
+      method: "POST",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Logout failed');
+      throw new Error(errorData.message || "Logout failed");
     }
 
     return response.json();
@@ -70,55 +70,60 @@ export const AuthAPI = {
 
   async getMe(): Promise<UserResponse> {
     const response = await fetch(`${API_BASE_URL}/me`, {
-      method: 'GET',
+      method: "GET",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch user');
+      throw new Error(errorData.message || "Failed to fetch user");
     }
 
     return response.json();
   },
 };
 
-export const USER_API_BASE_URL = '/api/users';
+export const USER_API_BASE_URL = "/api/users";
 
 export const UserAPI = {
   async getProfile(): Promise<UserResponse> {
     const response = await fetch(`${USER_API_BASE_URL}/profile`, {
-      method: 'GET',
+      method: "GET",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch profile');
+      throw new Error(errorData.message || "Failed to fetch profile");
     }
 
     return response.json();
   },
 
-  async updateProfile(data: { name?: string; email?: string }): Promise<UserResponse> {
+  async updateProfile(data: {
+    name?: string;
+    email?: string;
+  }): Promise<UserResponse> {
     const response = await fetch(`${USER_API_BASE_URL}/profile`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to update profile');
+      throw new Error(errorData.message || "Failed to update profile");
     }
 
     return response.json();
   },
 };
 
-export const ISSUE_API_BASE_URL = '/api/issues';
+export const ISSUE_API_BASE_URL = "/api/issues";
 
 export interface IssueResponse {
   id: number;
   userId: number;
+  projectId?: number | null;
+  projectName?: string | null;
   type: string;
   title: string;
   description: string;
@@ -145,17 +150,17 @@ export interface UpdateIssuePayload {
 
 export const IssueAPI = {
   async getAllIssues(typeFilter?: string): Promise<IssueResponse[]> {
-    const url = typeFilter 
+    const url = typeFilter
       ? `${ISSUE_API_BASE_URL}?type=${encodeURIComponent(typeFilter)}`
       : ISSUE_API_BASE_URL;
-    
+
     const response = await fetch(url, {
-      method: 'GET',
+      method: "GET",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch issues');
+      throw new Error(errorData.message || "Failed to fetch issues");
     }
 
     return response.json();
@@ -163,12 +168,12 @@ export const IssueAPI = {
 
   async getIssueById(id: number): Promise<IssueResponse> {
     const response = await fetch(`${ISSUE_API_BASE_URL}/${id}`, {
-      method: 'GET',
+      method: "GET",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch issue');
+      throw new Error(errorData.message || "Failed to fetch issue");
     }
 
     return response.json();
@@ -176,29 +181,32 @@ export const IssueAPI = {
 
   async createIssue(data: CreateIssuePayload): Promise<IssueResponse> {
     const response = await fetch(ISSUE_API_BASE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to create issue');
+      throw new Error(errorData.message || "Failed to create issue");
     }
 
     return response.json();
   },
 
-  async updateIssue(id: number, data: UpdateIssuePayload): Promise<IssueResponse> {
+  async updateIssue(
+    id: number,
+    data: UpdateIssuePayload
+  ): Promise<IssueResponse> {
     const response = await fetch(`${ISSUE_API_BASE_URL}/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to update issue');
+      throw new Error(errorData.message || "Failed to update issue");
     }
 
     return response.json();
@@ -206,19 +214,19 @@ export const IssueAPI = {
 
   async deleteIssue(id: number): Promise<{ message: string }> {
     const response = await fetch(`${ISSUE_API_BASE_URL}/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to delete issue');
+      throw new Error(errorData.message || "Failed to delete issue");
     }
 
     return response.json();
   },
 };
 
-export const PROJECT_API_BASE_URL = '/api/projects';
+export const PROJECT_API_BASE_URL = "/api/projects";
 
 export interface ProjectResponse {
   id: number;
@@ -249,12 +257,12 @@ export interface UpdateProjectPayload {
 export const ProjectAPI = {
   async getAllProjects(): Promise<ProjectResponse[]> {
     const response = await fetch(PROJECT_API_BASE_URL, {
-      method: 'GET',
+      method: "GET",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch projects');
+      throw new Error(errorData.message || "Failed to fetch projects");
     }
 
     return response.json();
@@ -262,12 +270,12 @@ export const ProjectAPI = {
 
   async getProjectById(id: number): Promise<ProjectResponse> {
     const response = await fetch(`${PROJECT_API_BASE_URL}/${id}`, {
-      method: 'GET',
+      method: "GET",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch project');
+      throw new Error(errorData.message || "Failed to fetch project");
     }
 
     return response.json();
@@ -275,29 +283,32 @@ export const ProjectAPI = {
 
   async createProject(data: CreateProjectPayload): Promise<ProjectResponse> {
     const response = await fetch(PROJECT_API_BASE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to create project');
+      throw new Error(errorData.message || "Failed to create project");
     }
 
     return response.json();
   },
 
-  async updateProject(id: number, data: UpdateProjectPayload): Promise<ProjectResponse> {
+  async updateProject(
+    id: number,
+    data: UpdateProjectPayload
+  ): Promise<ProjectResponse> {
     const response = await fetch(`${PROJECT_API_BASE_URL}/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to update project');
+      throw new Error(errorData.message || "Failed to update project");
     }
 
     return response.json();
@@ -305,12 +316,12 @@ export const ProjectAPI = {
 
   async deleteProject(id: number): Promise<{ message: string }> {
     const response = await fetch(`${PROJECT_API_BASE_URL}/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to delete project');
+      throw new Error(errorData.message || "Failed to delete project");
     }
 
     return response.json();
@@ -318,12 +329,12 @@ export const ProjectAPI = {
 
   async getProjectIssues(id: number): Promise<any[]> {
     const response = await fetch(`${PROJECT_API_BASE_URL}/${id}/issues`, {
-      method: 'GET',
+      method: "GET",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch project issues');
+      throw new Error(errorData.message || "Failed to fetch project issues");
     }
 
     return response.json();

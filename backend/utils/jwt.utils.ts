@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 export class JwtUtils {
   private static readonly SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key';
-  private static readonly EXPIRES_IN = '1d';
+  private static readonly EXPIRES_IN = '15m';
 
   // Generate JWT token
   // Takes: payload (object)

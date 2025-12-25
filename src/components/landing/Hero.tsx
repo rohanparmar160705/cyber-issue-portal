@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, ShieldCheck } from "lucide-react";
+import { ChevronRight, ShieldCheck, LayoutDashboard } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export const Hero = () => {
+  const { user, loading } = useAuth();
+
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center pt-20 overflow-hidden">
       {/* Background - Minimalist Grid */}
@@ -29,20 +32,32 @@ export const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/register"
-              className="w-full sm:w-auto px-8 py-4 bg-primary text-black font-bold rounded hover:bg-white transition-all duration-300 flex items-center justify-center group"
-            >
-              Get Started
-              <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            {!loading && user ? (
+              <Link
+                href="/dashboard"
+                className="w-full sm:w-auto px-10 py-4 bg-primary text-black font-bold rounded hover:bg-white transition-all duration-300 flex items-center justify-center group shadow-[0_0_30px_rgba(0,255,178,0.3)]"
+              >
+                Enter Command Center
+                <LayoutDashboard className="w-4 h-4 ml-2 group-hover:scale-110 transition-transform" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/register"
+                  className="w-full sm:w-auto px-8 py-4 bg-primary text-black font-bold rounded hover:bg-white transition-all duration-300 flex items-center justify-center group"
+                >
+                  Get Started
+                  <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
 
-            <Link
-              href="/login"
-              className="w-full sm:w-auto px-8 py-4 border border-white/10 text-white font-bold rounded hover:bg-white/5 transition-all duration-300"
-            >
-              Access Portal
-            </Link>
+                <Link
+                  href="/login"
+                  className="w-full sm:w-auto px-8 py-4 border border-white/10 text-white font-bold rounded hover:bg-white/5 transition-all duration-300"
+                >
+                  Access Portal
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

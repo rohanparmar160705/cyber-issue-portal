@@ -1,11 +1,17 @@
-import { z } from 'zod';
-import { RegisterDTO, LoginDTO } from '../models/auth.model';
+import { z } from "zod";
+import { RegisterDTO, LoginDTO } from "../models/auth.model";
 
 export class AuthValidator {
   // Zod schema for registration data
   static registerSchema = z.object({
     email: z.string().email(),
-    password: z.string().min(6),
+    password: z
+      .string()
+      .min(8)
+      .regex(/[A-Z]/)
+      .regex(/[a-z]/)
+      .regex(/[0-9]/)
+      .regex(/[^A-Za-z0-9]/),
     name: z.string().optional(),
   });
 
