@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { handleRequests as authHandler } from "../../../backend/routes/auth.routes";
 import { handleRequests as userHandler } from "../../../backend/routes/user.routes";
@@ -42,28 +44,33 @@ async function dispatch(req: NextRequest) {
   const action = pathParts.slice(1).join("/"); // e.g., 'login', 'profile', '123'
 
   // --------------------
-  // RATE LIMITING
+  // 🛡️ REDIS RATE LIMITING (MIDDLEWARE INTEGRATION)
   // --------------------
-  const endpoint = pathname; // full API path, used for limiter key
-  const method = req.method; // HTTP method (GET, POST, etc.)
+  // This is the global entry point where the RateLimiter (Redis-based) is called.
+  // It intercepts every request to /api/* before it reaches any Controller logic.
 
-  // Check current request against rate limiter
+  const endpoint = pathname; // Capture the full target API path
+  const method = req.method; // Capture the HTTP operation (GET, POST, etc.)
+
+  // Invoke the RateLimiter orchestrator to check Redis counts
   const rateLimitResult = await rateLimiter.check(req, endpoint, method);
+
+  // Extract RFC-compliant headers (Limit, Remaining, Reset)
   const rateLimitHeaders = rateLimiter.getHeaders(rateLimitResult);
 
-  // If the request exceeds the limit, return 429 immediately
+  // If Redis signals that the quota is exceeded, we abort the request here
   if (!rateLimitResult.allowed) {
     return NextResponse.json(
       {
         error: "Rate limit exceeded",
         message: "Too many requests. Please try again later.",
-        retryAfter: parseInt(rateLimitHeaders["Retry-After"] || "0"), // seconds until reset
-        limit: rateLimitResult.limit, // max allowed requests
-        reset: rateLimitResult.resetAt, // timestamp when limit resets
+        retryAfter: parseInt(rateLimitHeaders["Retry-After"] || "0"),
+        limit: rateLimitResult.limit,
+        reset: rateLimitResult.resetAt,
       },
       {
         status: 429,
-        headers: rateLimitHeaders as unknown as HeadersInit, // include rate-limit headers
+        headers: rateLimitHeaders as unknown as HeadersInit,
       }
     );
   }
@@ -84,11 +91,6 @@ async function dispatch(req: NextRequest) {
     response = await issueHandler(req, mockContext);
   } else if (domain === "projects") {
     response = await projectHandler(req, mockContext);
-  } else if (domain === "health") {
-    response = NextResponse.json({
-      status: "ok",
-      timestamp: new Date().toISOString(),
-    });
   } else {
     // Unknown domain -> 404 Not Found
     response = NextResponse.json({ message: "Not Found" }, { status: 404 });
@@ -115,3 +117,4 @@ async function dispatch(req: NextRequest) {
   - Dispatches requests to the correct handler based on domain
   - Supports all HTTP methods: GET, POST, PUT, DELETE
 */
+

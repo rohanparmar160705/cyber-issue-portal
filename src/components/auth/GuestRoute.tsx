@@ -28,3 +28,4 @@ export const GuestRoute = ({ children }: { children: React.ReactNode }) => {
   // Only render children if user is NOT logged in
   return !user ? <>{children}</> : null;
 };
+

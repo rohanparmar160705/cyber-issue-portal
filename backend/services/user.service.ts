@@ -82,3 +82,4 @@ export class UserService {
   - Ensures email uniqueness on updates
   - Returns sanitized UserProfileDTO objects
 */
+

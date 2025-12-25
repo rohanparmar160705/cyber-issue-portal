@@ -1,90 +1,109 @@
-import { NextRequest } from 'next/server';
-import { InMemoryRateLimitStore } from '../utils/rate-limit-store';
-import { PolicyResolver } from '../utils/rate-limit-policy';
-import { IdentifierResolver } from '../utils/identifier-resolver';
+import { NextRequest } from "next/server";
+import {
+  InMemoryRateLimitStore,
+  RedisRateLimitStore,
+} from "../utils/rate-limit-store";
+import { PolicyResolver } from "../utils/rate-limit-policy";
+import { IdentifierResolver } from "../utils/identifier-resolver";
 import type {
   IRateLimitStore,
   RateLimitResult,
   RateLimitHeaders,
-  RateLimitEntry
-} from '../models/rate-limit.model';
+} from "../models/rate-limit.model";
 
+/**
+ * 🛡️ RATE LIMITER MIDDLEWARE (ENTRY POINT)
+ * ---------------------------------------
+ * Role: This class is the CENTRAL ORCHESTRATOR. It is called by the main
+ * API routes (src/app/api/route.ts) before any controller logic.
+ *
+ * Flow:
+ * 1. Resolves Identity (User ID or IP)
+ * 2. Resolves Policy (Quota for the specific endpoint)
+ * 3. Checks/Increments Store (Redis or Memory)
+ * 4. Returns headers and allowed/denied status
+ */
 export class RateLimiter {
   private store: IRateLimitStore;
   private policyResolver: PolicyResolver;
   private identifierResolver: IdentifierResolver;
 
   constructor() {
-    this.store = new InMemoryRateLimitStore();
+    const redisUrl = process.env.REDIS_URL;
+    if (redisUrl && redisUrl.startsWith("redis")) {
+      this.store = new RedisRateLimitStore(redisUrl);
+      console.log("[RateLimiter] Using Redis storage");
+    } else {
+      this.store = new InMemoryRateLimitStore();
+      console.log("[RateLimiter] Using In-Memory storage");
+    }
     this.policyResolver = new PolicyResolver();
     this.identifierResolver = new IdentifierResolver();
   }
 
-  async check(req: NextRequest, endpoint: string, method: string): Promise<RateLimitResult> {
-    // 1. Get identifier (user:5 or ip:192.168.1.1)
-    const identifier = this.identifierResolver.resolve(req);
+  async check(
+    req: NextRequest,
+    endpoint: string,
+    method: string
+  ): Promise<RateLimitResult> {
+    try {
+      const identifier = this.identifierResolver.resolve(req);
+      const policy = this.policyResolver.resolve(endpoint, method);
+      const key = `${identifier}:${method}:${endpoint}`;
 
-    // 2. Get policy for this endpoint
-    const policy = this.policyResolver.resolve(endpoint, method);
+      let entry = await this.store.get(key);
+      const now = Date.now();
 
-    console.log(`[RateLimiter] Incoming: ${method} ${endpoint} | ID: ${identifier}`);
+      if (!entry || entry.resetAt < now) {
+        entry = {
+          count: 0,
+          resetAt: now + policy.windowMs,
+        };
+        await this.store.set(key, entry);
+      }
 
-    // 3. Create storage key
-    const key = `${identifier}:${method}:${endpoint}`;
+      if (entry.count >= policy.limit) {
+        return {
+          allowed: false,
+          limit: policy.limit,
+          remaining: 0,
+          resetAt: entry.resetAt,
+        };
+      }
 
-    // 4. Get current entry from store
-    let entry = this.store.get(key);
-    const now = Date.now();
+      const newCount = await this.store.increment(key);
 
-    // 5. Check if window expired or new entry
-    if (!entry || entry.resetAt < now) {
-      entry = {
-        count: 0,
-        resetAt: now + policy.windowMs
-      };
-      this.store.set(key, entry);
-      console.log(`[RateLimiter] New window started for ${identifier} on ${endpoint}`);
-    }
-
-    // 6. Check if limit exceeded
-    if (entry.count >= policy.limit) {
-      console.error(`[RateLimiter] BLOCK: ${identifier} exceeded limit (${policy.limit}) on ${endpoint}`);
       return {
-        allowed: false,
+        allowed: true,
         limit: policy.limit,
-        remaining: 0,
-        resetAt: entry.resetAt
+        remaining: policy.limit - newCount,
+        resetAt: entry.resetAt,
+      };
+    } catch (error) {
+      console.error("[RateLimiter] Error during check:", error);
+      // Fallback: allow request if limiter fails to not block users
+      return {
+        allowed: true,
+        limit: 100,
+        remaining: 99,
+        resetAt: Date.now() + 60000,
       };
     }
-
-    // 7. Increment counter
-    entry.count++;
-    this.store.set(key, entry);
-    
-    // Log storage (Note: currently using InMemoryStore, ready for Redis swap)
-    console.log(`[RateLimiter] ACCEPT: ${identifier} (${entry.count}/${policy.limit}) | Stored in memory`);
-
-    // 8. Return success
-    return {
-      allowed: true,
-      limit: policy.limit,
-      remaining: policy.limit - entry.count,
-      resetAt: entry.resetAt
-    };
   }
 
   getHeaders(result: RateLimitResult): RateLimitHeaders {
     const headers: RateLimitHeaders = {
-      'X-RateLimit-Limit': result.limit.toString(),
-      'X-RateLimit-Remaining': result.remaining.toString(),
-      'X-RateLimit-Reset': Math.floor(result.resetAt / 1000).toString()
+      "X-RateLimit-Limit": result.limit.toString(),
+      "X-RateLimit-Remaining": result.remaining.toString(),
+      "X-RateLimit-Reset": Math.floor(result.resetAt / 1000).toString(),
     };
 
     if (!result.allowed) {
       const retryAfter = Math.ceil((result.resetAt - Date.now()) / 1000);
-      headers['Retry-After'] = retryAfter.toString();
+      headers["Retry-After"] = Math.max(0, retryAfter).toString();
     }
 
     return headers;
   }
 }
+

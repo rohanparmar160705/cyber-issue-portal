@@ -11,3 +11,4 @@ export interface UserProfileDTO {
   name?: string | null;
   createdAt: Date;
 }
+

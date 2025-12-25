@@ -1,10 +1,11 @@
 services:
   - type: web
-    name: cyber-issue-portal
+    name: Vulnerability Management System
     buildCommand: npm install && npm run build
     startCommand: npm run start
     env:
       - DATABASE_URL
+      - DIRECT_URL
       - JWT_SECRET
       - RESEND_API_KEY
       - REDIS_URL

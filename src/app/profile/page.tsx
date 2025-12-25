@@ -90,7 +90,7 @@ export default function ProfilePage() {
             </h1>
             <p className="text-neutral-500 text-sm font-medium">
               Manage your digital identity and security preferences within the
-              ApniSec ecosystem.
+              ShieldVault ecosystem.
             </p>
           </header>
 
@@ -151,7 +151,7 @@ export default function ProfilePage() {
                           if (errors.email)
                             setErrors({ ...errors, email: undefined });
                         }}
-                        placeholder="analyst@apnisec.com"
+                        placeholder="analyst@ShieldVault.com"
                         className={`w-full bg-black/50 border ${
                           errors.email ? "border-red-500/50" : "border-white/10"
                         } p-4 rounded-xl focus:border-primary outline-none transition-all placeholder:text-neutral-800 font-medium`}
@@ -195,7 +195,7 @@ export default function ProfilePage() {
                       Active Session Management
                     </h3>
                     <p className="text-neutral-500 text-sm font-medium leading-relaxed">
-                      You are currently managing the ApniSec portal. Securely
+                      You are currently managing the ShieldVault portal. Securely
                       terminate your session to clear persistent authorization
                       tokens.
                     </p>
@@ -263,3 +263,4 @@ export default function ProfilePage() {
     </ProtectedRoute>
   );
 }
+

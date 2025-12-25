@@ -15,7 +15,7 @@ export class EmailService {
     this.renderer = new TemplateRenderer();
     // Use verified domain or Resend's onboarding default
     this.fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-    this.fromName = "ApniSec Portal";
+    this.fromName = "ShieldVault Portal";
   }
 
   /**
@@ -27,7 +27,7 @@ export class EmailService {
   }): Promise<void> {
     try {
       const html = this.renderer.render("welcome", {
-        EMAIL_TITLE: `Welcome to ApniSec!`,
+        EMAIL_TITLE: `Welcome to ShieldVault!`,
         USER_NAME: user.name || "valued user",
         CTA_BUTTON: true,
         CTA_URL: `${
@@ -36,12 +36,12 @@ export class EmailService {
         CTA_TEXT: "Go to Dashboard",
         LOGO_URL: "", // Can add hosted logo URL here
         FOOTER_TEXT:
-          "You received this email because you registered on the ApniSec portal.",
+          "You received this email because you registered on the ShieldVault portal.",
       });
 
       const result = (await this.send(
         user.email,
-        "Welcome to ApniSec Cybersecurity!",
+        "Welcome to ShieldVault Cybersecurity!",
         html
       )) as any;
       console.log(
@@ -53,7 +53,7 @@ export class EmailService {
       console.error(`[EmailService] SMTP BLOCKED: ${error.message}`);
       this.simulateEmailInConsole(
         user.email,
-        "Welcome to ApniSec",
+        "Welcome to ShieldVault",
         "New user registration flow."
       );
     }
@@ -81,7 +81,7 @@ export class EmailService {
         }/dashboard`,
         CTA_TEXT: "Review Finding",
         LOGO_URL: "",
-        FOOTER_TEXT: "Automated security alert from your ApniSec dashboard.",
+        FOOTER_TEXT: "Automated security alert from your ShieldVault dashboard.",
       });
 
       const result = (await this.send(
@@ -128,7 +128,7 @@ export class EmailService {
 
       const result = (await this.send(
         user.email,
-        "[Alert] Your ApniSec profile was updated",
+        "[Alert] Your ShieldVault profile was updated",
         html
       )) as any;
       console.log(
@@ -192,3 +192,4 @@ export class EmailService {
     console.log("=".repeat(60) + "\n");
   }
 }
+

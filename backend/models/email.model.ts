@@ -33,3 +33,4 @@ export interface TemplateData {
   FOOTER_TEXT: string;
   [key: string]: any;
 }
+

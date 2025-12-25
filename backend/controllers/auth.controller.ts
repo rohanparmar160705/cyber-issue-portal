@@ -113,3 +113,4 @@ export class AuthController {
   - Allows returning JSON, setting status codes, headers, and cookies
   - Example: NextResponse.json(data, { status: 200 })
 */
+

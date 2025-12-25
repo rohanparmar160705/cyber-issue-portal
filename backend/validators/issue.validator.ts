@@ -37,3 +37,4 @@ export class IssueValidator {
     return this.updateIssueSchema.parse(data) as UpdateIssueDTO;
   }
 }
+

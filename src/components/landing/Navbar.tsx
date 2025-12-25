@@ -43,7 +43,7 @@ export const Navbar = () => {
       <div className="container mx-auto px-6 flex items-center justify-between">
         <Link href="/" className="flex items-center group">
           <span className="text-xl font-bold tracking-tight text-white uppercase italic">
-            Apni<span className="text-primary not-italic">Sec</span>
+            Shield<span className="text-primary not-italic">Vault</span>
           </span>
         </Link>
 
@@ -175,3 +175,4 @@ export const Navbar = () => {
     </nav>
   );
 };
+

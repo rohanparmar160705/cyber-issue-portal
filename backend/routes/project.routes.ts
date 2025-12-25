@@ -74,3 +74,4 @@ export async function DELETE(req: NextRequest, context: any) {
   - Supports nested route /api/projects/{id}/issues
   - Returns JSON responses with appropriate HTTP status codes
 */
+

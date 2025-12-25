@@ -103,3 +103,4 @@ export class AuthService {
   - All methods return sanitized UserDTO objects (without password)
   - Throws ErrorHandler for any invalid operation (e.g., duplicate user, invalid credentials)
 */
+

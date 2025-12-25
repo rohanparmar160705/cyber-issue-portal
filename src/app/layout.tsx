@@ -9,7 +9,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "ApniSec | Advanced Cybersecurity & VAPT Management",
+  title: "ShieldVault | Advanced Cybersecurity & VAPT Management",
   description:
     "Next-gen vulnerability management and real-time security auditing portal.",
 };
@@ -37,3 +37,4 @@ export default function RootLayout({
     </html>
   );
 }
+

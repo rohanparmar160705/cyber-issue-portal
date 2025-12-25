@@ -64,10 +64,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center space-x-2">
             <span className="text-xl font-bold italic uppercase tracking-tighter">
-              Apni<span className="text-primary not-italic">Sec</span>
+              Shield<span className="text-primary not-italic">Vault</span>
             </span>
             <span className="text-neutral-600 text-xs font-medium ml-4">
-              © 2025 ApniSec Portal
+              © 2025 ShieldVault Portal
             </span>
           </div>
 
@@ -90,3 +90,4 @@ export default function LandingPage() {
     </main>
   );
 }
+

@@ -74,3 +74,4 @@ export class ProjectRepository {
   - Returns typed Project objects for use in ProjectService/Controller
   - Includes issue count in project queries for better UX
 */
+

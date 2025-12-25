@@ -23,3 +23,4 @@ export class UserValidator {
   - Ensures name and email (if provided) are valid
   - Returns typed DTO for use in UserService/Controller
 */
+

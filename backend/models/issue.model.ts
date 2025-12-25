@@ -54,3 +54,4 @@ export interface IssueResponseDTO {
   createdAt: Date;
   updatedAt: Date;
 }
+

@@ -85,3 +85,4 @@ export class PolicyResolver {
     return endpoint.replace(/\/\d+/g, '/:id');
   }
 }
+

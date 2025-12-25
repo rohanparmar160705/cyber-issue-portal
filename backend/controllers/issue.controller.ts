@@ -122,3 +122,4 @@ export class IssueController {
   - Validates input using IssueValidator
   - Returns proper JSON responses with status codes
 */
+

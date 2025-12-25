@@ -25,3 +25,4 @@ export function getResendClient(): Resend {
 
   return resendInstance;
 }
+

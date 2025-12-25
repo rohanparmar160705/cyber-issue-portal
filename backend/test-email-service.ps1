@@ -1,13 +1,13 @@
 $BaseUrl = "http://localhost:3000/api"
 $TestEmail = "rohanparmar160705@gmail.com"
-$TestPassword = "ApniSec@Test123"
+$TestPassword = "ShieldVault@Test123"
 $TestName = "Rohan Test"
 
 $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 
 Write-Host " "
 Write-Host "===============================================" -ForegroundColor Cyan
-Write-Host " APNISEC EMAIL SERVICE TEST SUITE" -ForegroundColor Cyan
+Write-Host " ShieldVault EMAIL SERVICE TEST SUITE" -ForegroundColor Cyan
 Write-Host "===============================================" -ForegroundColor Cyan
 Write-Host " "
 
@@ -78,3 +78,4 @@ Write-Host " TEST RUN COMPLETED" -ForegroundColor Cyan
 Write-Host " Check server logs (npm run dev) for email status." -ForegroundColor White
 Write-Host "===============================================" -ForegroundColor Cyan
 Write-Host " "
+

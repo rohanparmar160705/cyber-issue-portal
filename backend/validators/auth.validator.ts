@@ -43,3 +43,4 @@ export class AuthValidator {
   - Ensures correct structure and types for registration and login
   - Returns typed DTOs for use in services/controllers
 */
+

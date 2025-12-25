@@ -20,3 +20,4 @@ export class ErrorHandler extends Error {
   - Allows throwing errors with HTTP status codes
   - Can be caught in controllers or middleware to send proper API responses
 */
+

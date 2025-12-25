@@ -1,16 +1,17 @@
 {
-  "name": "cyber-issue-portal",
+  "name": "shieldvault-vms",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
     "@prisma/client": "^5.10.2",
     "bcryptjs": "^3.0.3",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",

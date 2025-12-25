@@ -46,7 +46,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await login({ email, password });
-      toast.success("Welcome back to ApniSec!");
+      toast.success("Welcome back to ShieldVault!");
     } catch (error: any) {
       toast.error(error.message || "Invalid email or password");
     } finally {
@@ -71,7 +71,7 @@ export default function LoginPage() {
           <div className="bg-[#0A0A0A] border border-white/10 p-10 rounded-2xl shadow-2xl text-center">
             <div className="mb-8">
               <span className="text-3xl font-bold tracking-tight text-white uppercase italic">
-                Apni<span className="text-primary not-italic">Sec</span>
+                Shield<span className="text-primary not-italic">Vault</span>
               </span>
             </div>
 
@@ -93,7 +93,7 @@ export default function LoginPage() {
                     if (errors.email)
                       setErrors({ ...errors, email: undefined });
                   }}
-                  placeholder="analyst@apnisec.com"
+                  placeholder="analyst@ShieldVault.com"
                   className={`w-full bg-black border ${
                     errors.email ? "border-red-500/50" : "border-white/10"
                   } p-4 rounded-lg focus:border-primary outline-none transition-all placeholder:text-neutral-700 font-medium`}
@@ -177,3 +177,4 @@ export default function LoginPage() {
     </GuestRoute>
   );
 }
+

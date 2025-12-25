@@ -34,3 +34,4 @@ export interface ProjectResponseDTO {
   updatedAt: Date;
   issueCount?: number; // Optional: count of linked issues
 }
+

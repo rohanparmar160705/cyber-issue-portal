@@ -1,0 +1,219 @@
+{
+  "info": {
+    "_postman_id": "9a6b2b4e-4b9a-4f88-9a92-Vulnerability Management System",
+    "name": "Cyber Issue Portal – Full API Verification",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "End-to-end verification of Auth, Users, Issues, and Projects APIs with automatic token & ID handling."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "token", "value": "" },
+    { "key": "email", "value": "" },
+    { "key": "issueId", "value": "" },
+    { "key": "projectId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1️ Register User",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"psuser_{{$randomInt}}@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"Postman Test User\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201 or 200', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+              "pm.environment.set('email', pm.response.json().email || pm.request.body.raw.match(/\"email\":\\s*\"([^\"]+)\"/)[1]);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2️ Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"password123\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Login success', () => pm.expect(pm.response.code).to.equal(200));",
+              "pm.collectionVariables.set('token', pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3️ Auth Me",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/auth/me"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Authorized', () => pm.expect(pm.response.code).to.equal(200));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4️ Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/users/profile"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Profile fetched', () => pm.expect(pm.response.code).to.equal(200));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5️ Update Profile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{baseUrl}}/users/profile",
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"name\": \"Updated Postman User\" }"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Profile updated', () => pm.expect(pm.response.code).to.equal(200));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6️ Create Issue",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{baseUrl}}/issues",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"CLOUD_SECURITY\",\n  \"title\": \"S3 Bucket Misconfiguration\",\n  \"description\": \"Public access enabled\",\n  \"priority\": \"HIGH\",\n  \"status\": \"OPEN\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Issue created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+              "pm.collectionVariables.set('issueId', pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7️ Get Issue By ID",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/issues/{{issueId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Issue fetched', () => pm.expect(pm.response.code).to.equal(200));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "8️ Update Issue",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{baseUrl}}/issues/{{issueId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"status\": \"IN_PROGRESS\", \"priority\": \"CRITICAL\" }"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Issue updated', () => pm.expect(pm.response.code).to.equal(200));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "9️ Delete Issue",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/issues/{{issueId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Issue deleted', () => pm.expect(pm.response.code).to.equal(200));"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Logout",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/auth/logout"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Logged out', () => pm.expect(pm.response.code).to.equal(200));",
+              "pm.collectionVariables.unset('token');"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
+
