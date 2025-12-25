@@ -7,7 +7,9 @@ services:
       - DATABASE_URL
       - JWT_SECRET
       - RESEND_API_KEY
+      - REDIS_URL
+      - RESEND_FROM_EMAIL
+      - NEXT_PUBLIC_APP_URL
     healthCheckPath: /api/health
-    staticPublishPath: .next
     ports:
       - 3000

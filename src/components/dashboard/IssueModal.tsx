@@ -14,12 +14,8 @@ import { z } from "zod";
 const issueSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(100),
   description: z.string().min(10, "Description must be at least 10 characters"),
-  type: z.enum(["CLOUD_SECURITY", "RETEAM_ASSESSMENT", "VAPT"], {
-    errorMap: () => ({ message: "Please select a valid issue type" }),
-  }),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH"], {
-    errorMap: () => ({ message: "Please select a priority level" }),
-  }),
+  type: z.enum(["CLOUD_SECURITY", "RETEAM_ASSESSMENT", "VAPT"]),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
   status: z.enum(["OPEN", "IN_PROGRESS", "CLOSED"]).default("OPEN"),
   projectId: z.number().optional(),
 });

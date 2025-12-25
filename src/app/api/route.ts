@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { handleRequests as authHandler } from '../../../backend/routes/auth.routes';
-import { handleRequests as userHandler } from '../../../backend/routes/user.routes';
-import { handleRequests as issueHandler } from '../../../backend/routes/issue.routes';
-import { handleRequests as projectHandler } from '../../../backend/routes/project.routes';
-import { RateLimiter } from '../../../backend/middleware/rate-limiter.middleware';
+import { NextRequest, NextResponse } from "next/server";
+import { handleRequests as authHandler } from "../../../backend/routes/auth.routes";
+import { handleRequests as userHandler } from "../../../backend/routes/user.routes";
+import { handleRequests as issueHandler } from "../../../backend/routes/issue.routes";
+import { handleRequests as projectHandler } from "../../../backend/routes/project.routes";
+import { RateLimiter } from "../../../backend/middleware/rate-limiter.middleware";
 
 // Singleton rate limiter instance shared across all requests
 const rateLimiter = new RateLimiter();
@@ -37,16 +37,16 @@ async function dispatch(req: NextRequest) {
 
   // Parse domain and action from path
   // Example: /api/auth/login -> domain='auth', action='login'
-  const pathParts = pathname.replace(/^\/api\//, '').split('/');
+  const pathParts = pathname.replace(/^\/api\//, "").split("/");
   const domain = pathParts[0]; // e.g., 'auth', 'users', 'issues', 'projects'
-  const action = pathParts.slice(1).join('/'); // e.g., 'login', 'profile', '123'
+  const action = pathParts.slice(1).join("/"); // e.g., 'login', 'profile', '123'
 
   // --------------------
   // RATE LIMITING
   // --------------------
   const endpoint = pathname; // full API path, used for limiter key
   const method = req.method; // HTTP method (GET, POST, etc.)
-  
+
   // Check current request against rate limiter
   const rateLimitResult = await rateLimiter.check(req, endpoint, method);
   const rateLimitHeaders = rateLimiter.getHeaders(rateLimitResult);
@@ -55,15 +55,15 @@ async function dispatch(req: NextRequest) {
   if (!rateLimitResult.allowed) {
     return NextResponse.json(
       {
-        error: 'Rate limit exceeded',
-        message: 'Too many requests. Please try again later.',
-        retryAfter: parseInt(rateLimitHeaders['Retry-After'] || '0'), // seconds until reset
+        error: "Rate limit exceeded",
+        message: "Too many requests. Please try again later.",
+        retryAfter: parseInt(rateLimitHeaders["Retry-After"] || "0"), // seconds until reset
         limit: rateLimitResult.limit, // max allowed requests
-        reset: rateLimitResult.resetAt // timestamp when limit resets
+        reset: rateLimitResult.resetAt, // timestamp when limit resets
       },
       {
         status: 429,
-        headers: rateLimitHeaders as unknown as HeadersInit // include rate-limit headers
+        headers: rateLimitHeaders as unknown as HeadersInit, // include rate-limit headers
       }
     );
   }
@@ -72,21 +72,26 @@ async function dispatch(req: NextRequest) {
   // ROUTE HANDLING
   // --------------------
   // Mock context to match backend route handler signature
-  const mockContext = { params: Promise.resolve({ action: action || 'list' }) };
+  const mockContext = { params: Promise.resolve({ action: action || "list" }) };
   let response: NextResponse;
 
   // Route to the appropriate backend handler based on domain
-  if (domain === 'auth') {
+  if (domain === "auth") {
     response = await authHandler(req, mockContext);
-  } else if (domain === 'users') {
+  } else if (domain === "users") {
     response = await userHandler(req, mockContext);
-  } else if (domain === 'issues') {
+  } else if (domain === "issues") {
     response = await issueHandler(req, mockContext);
-  } else if (domain === 'projects') {
+  } else if (domain === "projects") {
     response = await projectHandler(req, mockContext);
+  } else if (domain === "health") {
+    response = NextResponse.json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+    });
   } else {
     // Unknown domain -> 404 Not Found
-    response = NextResponse.json({ message: 'Not Found' }, { status: 404 });
+    response = NextResponse.json({ message: "Not Found" }, { status: 404 });
   }
 
   // --------------------
